@@ -1,0 +1,47 @@
+server:
+  port: 7777
+  origin: 'http://localhost:3000'
+
+db:
+  host: 'localhost'
+  type: 'postgres'
+  port: 5432
+  username: 'postgres'
+  password: 'root'
+  synchronize: false
+
+
+app:
+  fallbackLanguage: 'en'
+  name: 'Nestjs Boilerplate'
+  version: 'v0.1'
+  description: 'Nestjs Boilerplate API with redis and prisma'
+  appUrl: 'http://localhost:7777'
+  frontendUrl: 'http://localhost:3000'
+  sameSite: true
+
+
+queue:
+  driver: 'redis'
+  host: 'localhost'
+  port: 6399
+  db: ''
+  password: ''
+  username: ''
+
+throttle:
+  global:
+    ttl: 60
+    limit: 60
+  login:
+    prefix: 'login_fail_throttle'
+    limit: 5
+    duration: 2592000
+    blockDuration: 3000
+
+winston:
+  groupName: 'nestjs'
+  streamName: 'nestjs-stream'
+  awsAccessKeyId: ''
+  awsSecretAccessKey: ''
+  awsRegion: ''

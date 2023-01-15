@@ -1,0 +1,9 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+      "outDir": "./docs",
+      "types": []
+    },
+    "include": ["src/**/*.ts"],    
+    "exclude": ["src/test.ts", "src/**/*.spec.ts"]
+  }

@@ -1,0 +1,52 @@
+server:
+  port: 7777
+  origin: 'http://localhost:3000'
+
+db:
+  host: ''
+  type: ''
+  port: 5432
+  database: 'nestjs'
+  synchronize: false
+
+jwt:
+  expiresIn: 900
+  refreshExpiresIn: 604800
+  cookieExpiresIn: 604800
+
+app:
+  name: 'nestjs'
+  version: 'v0.1'
+  description: 'Official nestjs API'
+  appUrl: 'https://nestjs-backend.herokuapp.com/'
+  frontendUrl: 'http://localhost:3000'
+
+mail:
+  host: ''
+  port: 2525
+  user: ''
+  pass: ''
+  from: 'nestjscms'
+  fromMail: 'nestjscms@gmail.com'
+  preview: true
+  secure: false
+  ignoreTLS: true
+  queueName: 'nestjs-mail'
+
+queue:
+  driver: 'redis'
+  host: 'localhost'
+  port: 6379
+  db: ''
+  password: ''
+  username: ''
+
+throttle:
+  global:
+    ttl: 60
+    limit: 60
+  login:
+    prefix: 'login_fail_throttle'
+    limit: 5
+    duration: 2592000
+    blockDuration: 3000
