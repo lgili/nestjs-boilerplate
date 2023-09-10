@@ -1,0 +1,46 @@
+- Page and Limit
+    - By default the paginate always enable and if consumer don't send `page` and `limit` on query, will return page 1 and 10 items;
+    - on `Response.headers` will have the property `count` and `page` with total of items and page number;
+    - `http://localhost:3000/posts?page=2&limit=10`
+  - Sort
+    - To use `sort` needed two properties `criteria` and `field`;
+    - `criteria` is a enum with `asc` and `desc`;
+    - `field` is the field that sort will be applied;
+    - `http://localhost:3000/posts?sort[criteria]=asc&sort[field]=title`
+  - Select
+
+    - **All the properties will be separeted by blank space;**
+    - By default if you don't send any `select` the find just will return the `id` property;
+    - If it is necessary to take the whole object it is possible to use `select=all`;
+    - Exception: If you select a relationship field will be return all the object, to select a field in one relation you can use `populate` and to find just him `id` is possible to use `authorId` field;
+    - `http://localhost:3000/posts?select=title published authorId`
+
+    - To exclude fields from the return, you can use a dto on prisma response before return to the user;
+      - Exemple a user password or token informations;
+
+  - Populate
+    - Populate is an array and that allows you to select in the fields of relationships, him need two parameters **`path`** and **`select`;**
+    - `path` is the relationship reference (ex: author);
+    - `select` are the fields that will be returned;
+    - `primaryKey` is the reference to primary key of the relationship (**optional**) (default: 'id');
+    - The populate index is needed to link the properties `path` and `select`;
+    - `http://localhost:3000/posts?populate[0][path]=author&populate[0][select]=name email`
+  - Filter
+    - Can be used to filter the query with your requeriments
+    - `path` is a reference from the property that will applied the filter;
+    - `value` is the value that will be filtered;
+    - `filterGroup` can be used to make where with operators `and`, `or` and `not` or no operator (**optional**);
+      - accepted types: `['and', 'or, 'not’]`
+    - `operator` can be used to personalize your filter (**optional**);
+      - accepted types: `['contains', 'endsWith', 'startsWith', 'equals', 'gt', 'gte', 'in', 'lt', 'lte', 'not', 'notIn', 'hasEvery', 'hasSome', 'has', 'isEmpty']`
+      - `hasEvery and hasSome` are a unique string and values are separeted by ';'
+        - `?filter[0][path]=name&filter[0][operator]=hasSome&filter[0][value]=foo; bar; ula`
+    - `insensitive` can be used to filter (**optional**);
+      - accepted types: `['true', 'false'] - default: 'false'`
+      - (check prisma rules for more details - [Prisma: Database collation and case sensitivity](https://www.prisma.io/docs/concepts/components/prisma-client/case-sensitivity#database-collation-and-case-sensitivity))
+    - `type` needs to be used if value don't is a **string;**
+      - accepted types: `['string', 'boolean', 'number', 'date'] - default: 'string'`
+    - filter is an array and that allows you to append some filters to the same query;
+    - `http://localhost:3000/posts?filter[0][path]=title&filter[0][value]=querybuilder&filter[1][path]=published&filter[1][value]=false`
+    - `http://localhost:3000/posts?filter[1][path]=published&filter[1][value]=false&filter[1][type]=boolean`
+    - `http://localhost:3000/posts?filter[0][path]=title&filter[0][value]=querybuilder&filter[0][filterGroup]=and&filter[1][path]=published&filter[1][value]=falsefilter[1][filterGroup]=and`

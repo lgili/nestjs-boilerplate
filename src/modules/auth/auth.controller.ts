@@ -14,25 +14,26 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
-  ValidationPipe
+  ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
+import { AuthService } from './auth.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { RegisterUserDto } from './dto/register-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UserEntity } from './entity/user.entity';
+import { CurrentUser } from '@core/decorators/user.decorator';
+// import JwtTwoFactorGuard from '@core/guard/jwt-two-factor.guard';
+// import { PermissionGuard } from '@core/guard/permission.guard';
+import { multerOptionsHelper } from '@core/helper/multer-options.helper';
+import { QueryPrisma } from '@core/repository/query-buider-frontend/interfaces/Query';
+import { Pagination } from '@core/paginate';
 import { UAParser } from 'ua-parser-js';
 
-import { AuthService } from 'src/modules/auth/auth.service';
-import { CreateUserDto } from 'src/modules/auth/dto/create-user.dto';
-import { RegisterUserDto } from 'src/modules/auth/dto/register-user.dto';
-import { UpdateUserDto } from 'src/modules/auth/dto/update-user.dto';
-import { UserSearchFilterDto } from 'src/modules/auth/dto/user-search-filter.dto';
-import { UserEntity } from 'src/modules/auth/model/user.entity';
-
-import { GetUser } from 'src/common/decorators/get-user.decorator';
-import { multerOptionsHelper } from 'src/common/helper/multer-options.helper';
-import { Pagination } from 'src/paginate';
-import { UserSerializer } from './model/user.serializer';
-;
+import { RefreshTokenEntity } from './entity/refresh-token.entity';
+import { UserLoginDto } from './dto/user-login.dto';
 
 @ApiTags('user')
 @Controller()
@@ -43,57 +44,68 @@ export class AuthController {
   @Post('/auth/register')
   register(
     @Body(ValidationPipe)
-    registerUserDto: RegisterUserDto
-  ): Promise<UserSerializer> {
-    return this.authService.register(registerUserDto);
+    registerUserDto: RegisterUserDto,
+  ): Promise<UserEntity> {
+    return this.authService.create(registerUserDto);
   }
- 
-  
-  
-  // @Get('/auth/profile')
-  // profile(
-  //   @GetUser()
-  //   user: UserEntity
-  // ): Promise<UserSerializer> {
-  //   return this.authService.get(user);
-  // }
 
-  
-  // @Get('/users')
-  // findAll(
-  //   @Query()
-  //   userSearchFilterDto: UserSearchFilterDto
-  // ): Promise<Pagination<UserSerializer>> {
-  //   return this.authService.findAll(userSearchFilterDto);
-  // }
-  
-  // @Post('/users')
-  // create(
-  //   @Body(ValidationPipe)
-  //   createUserDto: CreateUserDto
-  // ): Promise<User> {
-  //   return this.authService.create(createUserDto);
-  // }
+  @Post('/auth/login')
+  async login(
+    @Req()
+    req: Request,
+    @Res()
+    response: Response,
+    @Body()
+    userLoginDto: UserLoginDto,
+  ) {
+    const ua = UAParser(req.headers['user-agent']);
 
-  
-  // @Put('/users/:id')
-  // update(
-  //   @Param('id')
-  //   id: string,
-  //   @Body()
-  //   updateUserDto: UpdateUserDto
-  // ): Promise<UserSerializer> {
-  //   return this.authService.update(+id, updateUserDto);
-  // }
+    const refreshTokenPayload: Partial<RefreshTokenEntity> = {
+      ip: req.ip,
+      userAgent: JSON.stringify(ua),
+      browser: ua.browser.name,
+      os: ua.os.name,
+    };
 
-  
-  // @Get('/users/:id')
-  // findOne(
-  //   @Param('id')
-  //   id: string
-  // ): Promise<UserSerializer> {
-  //   return this.authService.findById(+id);
-  // }
+    const cookiePayload = await this.authService.login(
+      userLoginDto,
+      refreshTokenPayload,
+    );
+    response.setHeader('Set-Cookie', cookiePayload);
 
-    
+    return response.status(HttpStatus.NO_CONTENT).json({});
+  }
+
+  // @UseGuards(JwtTwoFactorGuard, PermissionGuard)
+  @Get('/users')
+  findAll(
+    @Query()
+    userSearchFilterDto: QueryPrisma,
+  ): Promise<Pagination<UserEntity>> {
+    return this.authService.findAll(userSearchFilterDto);
+  }
+
+
+  // @UseGuards(JwtTwoFactorGuard, PermissionGuard)
+  @Put('/users/:id')
+  update(
+    @Param('id')
+    id: string,
+    @Body()
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserEntity> {
+    return this.authService.update(id, updateUserDto);
+  }
+
+
+  // @UseGuards(JwtTwoFactorGuard, PermissionGuard)
+  @Get('/users/:id')
+  findOne(
+    @Param('id')
+    id: string,
+  ): Promise<UserEntity> {
+    return this.authService.findById(id);
+  }
+
+
 }

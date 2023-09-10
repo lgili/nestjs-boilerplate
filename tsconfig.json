@@ -9,7 +9,13 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
-    "incremental": true
+    "incremental": true,
+    "paths": {
+      "@core/*": ["src/core/*"],
+      "@types/*": ["src/types/*"],
+      "@infra/*": ["src/infra/*"],
+      "@test/*": ["./test/*"]
+    }
   },
   "exclude": ["build","dist"]
 }

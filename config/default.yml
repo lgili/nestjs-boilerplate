@@ -10,6 +10,12 @@ db:
   password: 'root'
   synchronize: false
 
+jwt:
+  # expiresIn: 10
+  secret: 'example@123'
+  expiresIn: 900
+  refreshExpiresIn: 604800
+  cookieExpiresIn: 604800
 
 app:
   fallbackLanguage: 'en'
@@ -20,6 +26,17 @@ app:
   frontendUrl: 'http://localhost:3000'
   sameSite: true
 
+mail:
+  host: 'smtp.mailtrap.io'
+  port: 2525
+  user: '12e65374d11fdb'
+  pass: '083f645323a3ff'
+  from: 'truthycms'
+  fromMail: 'truthycms@gmail.com'
+  preview: true
+  secure: false
+  ignoreTLS: true
+  queueName: 'truthy-mail'
 
 queue:
   driver: 'redis'
@@ -45,3 +62,6 @@ winston:
   awsAccessKeyId: ''
   awsSecretAccessKey: ''
   awsRegion: ''
+
+twofa:
+  authenticationAppNAme: 'truthy'  
